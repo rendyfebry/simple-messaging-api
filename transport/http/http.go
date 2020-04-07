@@ -12,10 +12,17 @@ var (
 )
 
 type (
-	// SuccessResponse ...
+	// SuccessResponse object
 	SuccessResponse struct {
 		Data interface{} `json:"data"`
 		Meta meta        `json:"meta,omitempty"`
+	}
+
+	// ErrorResponse object
+	ErrorResponse struct {
+		Code    string                 `json:"code"`
+		Message string                 `json:"message"`
+		Meta    map[string]interface{} `json:"meta,omitempty"`
 	}
 
 	meta map[string]interface{}
@@ -27,30 +34,34 @@ func MakeRoutes() *mux.Router {
 	r.HandleFunc("/", HomeHandler).Methods("GET")
 	r.HandleFunc("/messages", PostMessageHandler).Methods("POST")
 	r.HandleFunc("/messages", GetMessageHandler).Methods("GET")
+	r.NotFoundHandler = HandleNotFound()
 
 	return r
 }
 
-// HomeHandler is handler function of home endpoint
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	encodeResponse(w, "Home")
-}
-
-// PostMessageHandler is handler function of post message endpoint
-func PostMessageHandler(w http.ResponseWriter, r *http.Request) {
-	encodeResponse(w, "POST Message")
-}
-
-// GetMessageHandler is handler function of get message endpoint
-func GetMessageHandler(w http.ResponseWriter, r *http.Request) {
-	encodeResponse(w, "GET Message")
-}
-
 func encodeResponse(w http.ResponseWriter, res interface{}) {
 	payload := &SuccessResponse{
-		Data: "GET Message",
+		Data: res,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(payload)
+}
+
+func encodeError(w http.ResponseWriter, err *ErrorResponse, errStatus int) {
+	w.Header().Set("Content-Type", "application/vnd.api+json")
+	w.WriteHeader(errStatus)
+	json.NewEncoder(w).Encode(err)
+}
+
+// HandleNotFound is handler function for all not found endpoint
+func HandleNotFound() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		payload := &ErrorResponse{
+			Code:    "http-404",
+			Message: http.StatusText(http.StatusNotFound),
+		}
+
+		encodeError(w, payload, http.StatusNotFound)
+	})
 }
