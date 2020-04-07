@@ -58,7 +58,7 @@ func encodeError(w http.ResponseWriter, err *ErrorResponse, errStatus int) {
 func HandleNotFound() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		payload := &ErrorResponse{
-			Code:    "http-404",
+			Code:    "mssg-401-1",
 			Message: http.StatusText(http.StatusNotFound),
 		}
 
