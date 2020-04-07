@@ -9,11 +9,12 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/gorilla/mux"
+	httptransport "github.com/rendyfebry/simple-messaging-api/transport/http"
 )
 
 func main() {
-	routes := mux.NewRouter()
+	routes := httptransport.MakeRoutes()
+
 	// Routes here
 
 	srv := &http.Server{
