@@ -4,7 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	"github.com/json-iterator/go"
+	"github.com/rendyfebry/simple-messaging-api/services"
 )
 
 var (
@@ -30,10 +32,18 @@ type (
 
 // MakeRoutes will return mux router object
 func MakeRoutes() *mux.Router {
+	svc := services.NewService("local")
+	mr := &MessageRoute{
+		svc:        svc,
+		wsChannels: make([]*websocket.Conn, 0),
+	}
+
 	r := mux.NewRouter()
-	r.HandleFunc("/", HomeHandler).Methods("GET")
-	r.HandleFunc("/messages", PostMessageHandler).Methods("POST")
-	r.HandleFunc("/messages", GetMessageHandler).Methods("GET")
+	r.HandleFunc("/", mr.HomeHandler).Methods("GET")
+	r.HandleFunc("/messages", mr.PostMessageHandler).Methods("POST")
+	r.HandleFunc("/messages", mr.GetMessageHandler).Methods("GET")
+	r.HandleFunc("/ws", mr.WebSocketHandler)
+
 	r.NotFoundHandler = HandleNotFound()
 
 	return r

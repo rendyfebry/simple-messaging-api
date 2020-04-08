@@ -1,0 +1,44 @@
+<!-- index.html -->
+<html>
+  <head>
+    <title>Simple Messaging</title>
+
+    <script>
+      function sendMessage() {
+        const input = document.getElementById("input");
+
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(input.value);
+          input.value = "";
+        } else {
+          alert(`WebSocket not in ready state: ${socket.readyState}`);
+        }
+      }
+
+      function handleOpen() {
+        const output = document.getElementById("output");
+        output.innerHTML += "Status: Connected\n";
+      }
+
+      function handleClose() {
+        const output = document.getElementById("output");
+        output.innerHTML += "Status: Disconnected\n";
+      }
+
+      function handleNewMessage(e) {
+        const output = document.getElementById("output");
+        output.innerHTML += `Msg: ${e.data} \n`;
+      }
+
+      const socket = new WebSocket("ws://localhost:8080/ws");
+      socket.onopen = handleOpen;
+      socket.onclose = handleClose;
+      socket.onmessage = handleNewMessage;
+    </script>
+  </head>
+  <body>
+    <input id="input" type="text" />
+    <button onclick="sendMessage()">Send</button>
+    <pre id="output"></pre>
+  </body>
+</html>
