@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 	"github.com/json-iterator/go"
 	"github.com/rendyfebry/simple-messaging-api/services"
 )
@@ -34,8 +33,7 @@ type (
 func MakeRoutes() *mux.Router {
 	svc := services.NewService("local")
 	mr := &MessageRoute{
-		svc:        svc,
-		wsChannels: make([]*websocket.Conn, 0),
+		svc: svc,
 	}
 
 	r := mux.NewRouter()

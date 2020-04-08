@@ -11,8 +11,7 @@ import (
 
 // MessageRoute ...
 type MessageRoute struct {
-	svc        services.MsgService
-	wsChannels []*websocket.Conn
+	svc services.MsgService
 }
 
 // PostMessageRequest ...
@@ -23,7 +22,6 @@ type PostMessageRequest struct {
 // HomeHandler is handler function of home endpoint
 func (mr *MessageRoute) HomeHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./public/index.html")
-	// encodeResponse(w, "Home")
 }
 
 // PostMessageHandler is handler function of post message endpoint
@@ -52,13 +50,10 @@ func (mr *MessageRoute) PostMessageHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	msgByte, err := json.Marshal(msg.Body)
-	if err == nil {
-		broadcastMsg(mr.wsChannels, 1, msgByte)
-	} else {
-		fmt.Println(err)
-	}
+	// Broadcast message to
+	mr.svc.BroadcastMessage(1, msg.Body)
 
+	// Return response
 	encodeResponse(w, msg)
 }
 
@@ -80,6 +75,7 @@ func (mr *MessageRoute) GetMessageHandler(w http.ResponseWriter, r *http.Request
 
 // WebSocketHandler is handler function of get websocket endpoint
 func (mr *MessageRoute) WebSocketHandler(w http.ResponseWriter, r *http.Request) {
+	// Create new connect
 	newConn, err := websocket.Upgrade(w, r, w.Header(), 1024, 1024)
 	if err != nil {
 		payload := &ErrorResponse{
@@ -91,24 +87,25 @@ func (mr *MessageRoute) WebSocketHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	mr.wsChannels = append(mr.wsChannels, newConn)
+	// Registed conn to channel list
+	mr.svc.RegisterChannel(newConn)
 
 	for {
 		// Read message from browser
-		msgType, msg, err := newConn.ReadMessage()
+		msgType, msgBody, err := newConn.ReadMessage()
 		if err != nil {
-			fmt.Println("Unable to reead message")
+			fmt.Println("Unable to read message")
 			return
 		}
 
 		// Save message to storage
-		_, err = mr.svc.CreateMessage(string(msg))
+		msg, err := mr.svc.CreateMessage(string(msgBody))
 		if err != nil {
 			fmt.Println("Unable to save message")
 			return
 		}
 
 		// Broadcast to all channels
-		broadcastMsg(mr.wsChannels, msgType, msg)
+		mr.svc.BroadcastMessage(msgType, msg.Body)
 	}
 }

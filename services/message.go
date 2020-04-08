@@ -1,8 +1,11 @@
 package services
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
+	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -17,11 +20,14 @@ type Message struct {
 type MsgService interface {
 	CreateMessage(string) (*Message, error)
 	GetMessages() ([]*Message, error)
+	RegisterChannel(newConn *websocket.Conn)
+	BroadcastMessage(msgType int, msg string)
 }
 
 // MsgSvc ...
 type MsgSvc struct {
 	Database []*Message
+	Channels []*websocket.Conn
 }
 
 // NewService will create instance of MsgSvc
@@ -37,6 +43,7 @@ func NewService(storage string) MsgService {
 
 	return &MsgSvc{
 		Database: localDB,
+		Channels: make([]*websocket.Conn, 0),
 	}
 }
 
@@ -55,4 +62,26 @@ func (svc *MsgSvc) CreateMessage(body string) (*Message, error) {
 // GetMessages ...
 func (svc *MsgSvc) GetMessages() ([]*Message, error) {
 	return svc.Database, nil
+}
+
+// RegisterChannel ...
+func (svc *MsgSvc) RegisterChannel(newConn *websocket.Conn) {
+	svc.Channels = append(svc.Channels, newConn)
+}
+
+// BroadcastMessage ...
+func (svc *MsgSvc) BroadcastMessage(msgType int, msg string) {
+	msgByte, err := json.Marshal(msg)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	for _, conn := range svc.Channels {
+		// Send message to every connection
+		if err := conn.WriteMessage(msgType, msgByte); err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
 }
