@@ -65,7 +65,7 @@ func encodeResponse(w http.ResponseWriter, res interface{}) {
 		Data: res,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/vnd.api+json")
 	json.NewEncoder(w).Encode(payload)
 }
 
