@@ -9,15 +9,17 @@ import (
 	"github.com/rendyfebry/simple-messaging-api/services"
 )
 
-// MessageRoute ...
-type MessageRoute struct {
-	svc services.MsgService
-}
+type (
+	// MessageRoute ...
+	MessageRoute struct {
+		svc services.MsgService
+	}
 
-// PostMessageRequest ...
-type PostMessageRequest struct {
-	Body string `json:"body"`
-}
+	// PostMessageRequest ...
+	PostMessageRequest struct {
+		Body string `json:"body"`
+	}
+)
 
 // HomeHandler is handler function of home endpoint
 func (mr *MessageRoute) HomeHandler(w http.ResponseWriter, r *http.Request) {

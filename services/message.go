@@ -1,34 +1,40 @@
 package services
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/gorilla/websocket"
+	jsoniter "github.com/json-iterator/go"
 	uuid "github.com/satori/go.uuid"
 )
 
-// Message ...
-type Message struct {
-	ID        uuid.UUID `json:"id"`
-	Body      string    `json:"body"`
-	CreatedAt time.Time `json:"created_at"`
-}
+var (
+	json = jsoniter.ConfigCompatibleWithStandardLibrary
+)
 
-// MsgService ...
-type MsgService interface {
-	CreateMessage(string) (*Message, error)
-	GetMessages() ([]*Message, error)
-	RegisterChannel(newConn *websocket.Conn)
-	BroadcastMessage(msgType int, msg string)
-}
+type (
+	// Message object
+	Message struct {
+		ID        uuid.UUID `json:"id"`
+		Body      string    `json:"body"`
+		CreatedAt time.Time `json:"created_at"`
+	}
 
-// MsgSvc ...
-type MsgSvc struct {
-	Database []*Message
-	Channels []*websocket.Conn
-}
+	// MsgSvc object
+	MsgSvc struct {
+		Database []*Message
+		Channels []*websocket.Conn
+	}
+
+	// MsgService interface
+	MsgService interface {
+		CreateMessage(string) (*Message, error)
+		GetMessages() ([]*Message, error)
+		RegisterChannel(newConn *websocket.Conn)
+		BroadcastMessage(msgType int, msg string)
+	}
+)
 
 // NewService will create instance of MsgSvc
 func NewService(storage string) MsgService {
@@ -47,7 +53,7 @@ func NewService(storage string) MsgService {
 	}
 }
 
-// CreateMessage ...
+// CreateMessage will create new message object and save it to db
 func (svc *MsgSvc) CreateMessage(body string) (*Message, error) {
 	newMsg := &Message{
 		ID:        uuid.NewV4(),
@@ -59,17 +65,17 @@ func (svc *MsgSvc) CreateMessage(body string) (*Message, error) {
 	return newMsg, nil
 }
 
-// GetMessages ...
+// GetMessages will return all messages from db
 func (svc *MsgSvc) GetMessages() ([]*Message, error) {
 	return svc.Database, nil
 }
 
-// RegisterChannel ...
+// RegisterChannel will register new connection to the channel list
 func (svc *MsgSvc) RegisterChannel(newConn *websocket.Conn) {
 	svc.Channels = append(svc.Channels, newConn)
 }
 
-// BroadcastMessage ...
+// BroadcastMessage will send message to all available channels
 func (svc *MsgSvc) BroadcastMessage(msgType int, msg string) {
 	msgByte, err := json.Marshal(msg)
 	if err != nil {

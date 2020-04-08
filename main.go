@@ -9,14 +9,18 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/rendyfebry/simple-messaging-api/services"
 	httptransport "github.com/rendyfebry/simple-messaging-api/transport/http"
 )
 
 func main() {
-	routes := httptransport.MakeRoutes()
+	// Initialize service
+	svc := services.NewService("local")
 
-	// Routes here
+	// Initialize route
+	routes := httptransport.MakeRoutes(svc)
 
+	// Initialize http serve
 	srv := &http.Server{
 		Addr:         fmt.Sprintf("%s:%v", "0.0.0.0", "8080"),
 		WriteTimeout: time.Second * 15,

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/json-iterator/go"
+
 	"github.com/rendyfebry/simple-messaging-api/services"
 )
 
@@ -30,8 +31,7 @@ type (
 )
 
 // MakeRoutes will return mux router object
-func MakeRoutes() *mux.Router {
-	svc := services.NewService("local")
+func MakeRoutes(svc services.MsgService) *mux.Router {
 	mr := &MessageRoute{
 		svc: svc,
 	}
@@ -47,21 +47,6 @@ func MakeRoutes() *mux.Router {
 	return r
 }
 
-func encodeResponse(w http.ResponseWriter, res interface{}) {
-	payload := &SuccessResponse{
-		Data: res,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(payload)
-}
-
-func encodeError(w http.ResponseWriter, err *ErrorResponse, errStatus int) {
-	w.Header().Set("Content-Type", "application/vnd.api+json")
-	w.WriteHeader(errStatus)
-	json.NewEncoder(w).Encode(err)
-}
-
 // HandleNotFound is handler function for all not found endpoint
 func HandleNotFound() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -72,4 +57,21 @@ func HandleNotFound() http.Handler {
 
 		encodeError(w, payload, http.StatusNotFound)
 	})
+}
+
+// encodeResponse is http helper function to generate success response
+func encodeResponse(w http.ResponseWriter, res interface{}) {
+	payload := &SuccessResponse{
+		Data: res,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(payload)
+}
+
+// encodeResponse is http helper function to generate error response
+func encodeError(w http.ResponseWriter, err *ErrorResponse, errStatus int) {
+	w.Header().Set("Content-Type", "application/vnd.api+json")
+	w.WriteHeader(errStatus)
+	json.NewEncoder(w).Encode(err)
 }
