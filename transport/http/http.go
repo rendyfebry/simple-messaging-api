@@ -32,15 +32,11 @@ type (
 
 // MakeRoutes will return mux router object
 func MakeRoutes(svc services.MsgService) *mux.Router {
-	mr := &MessageRoute{
-		svc: svc,
-	}
-
 	r := mux.NewRouter()
-	r.HandleFunc("/", mr.HomeHandler).Methods("GET")
-	r.HandleFunc("/messages", mr.PostMessageHandler).Methods("POST")
-	r.HandleFunc("/messages", mr.GetMessageHandler).Methods("GET")
-	r.HandleFunc("/ws", mr.WebSocketHandler)
+	r.Handle("/", MakeHomeHandler()).Methods("GET")
+	r.Handle("/messages", MakePostMessageHandler(svc)).Methods("POST")
+	r.Handle("/messages", MakeGetMessageHandler(svc)).Methods("GET")
+	r.Handle("/ws", MakeWebSocketHandler(svc))
 
 	r.NotFoundHandler = HandleNotFound()
 
