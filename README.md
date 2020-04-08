@@ -13,6 +13,12 @@ Simple Messaging API with REST & Websocket
 dep ensure
 ```
 
+## Test
+
+```
+go test -v ./...
+```
+
 ## Usage
 
 Run Server
