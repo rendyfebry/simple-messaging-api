@@ -2,7 +2,9 @@ package http
 
 import (
 	"net/http"
+	"os"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/json-iterator/go"
 
@@ -34,8 +36,8 @@ type (
 func MakeRoutes(svc services.MsgService) *mux.Router {
 	r := mux.NewRouter()
 	r.Handle("/", MakeHomeHandler()).Methods("GET")
-	r.Handle("/messages", MakePostMessageHandler(svc)).Methods("POST")
-	r.Handle("/messages", MakeGetMessageHandler(svc)).Methods("GET")
+	r.Handle("/messages", handlers.LoggingHandler(os.Stdout, MakePostMessageHandler(svc))).Methods("POST")
+	r.Handle("/messages", handlers.LoggingHandler(os.Stdout, MakeGetMessageHandler(svc))).Methods("GET")
 	r.Handle("/ws", MakeWebSocketHandler(svc))
 
 	r.NotFoundHandler = HandleNotFound()
