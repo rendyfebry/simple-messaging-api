@@ -53,7 +53,11 @@ func (mr *MessageRoute) PostMessageHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Broadcast message to
-	mr.svc.BroadcastMessage(1, msg.Body)
+	err = mr.svc.BroadcastMessage(1, msg.Body)
+	if err != nil {
+		// Do not fail, just print the error
+		fmt.Println(err)
+	}
 
 	// Return response
 	encodeResponse(w, msg)
@@ -108,6 +112,10 @@ func (mr *MessageRoute) WebSocketHandler(w http.ResponseWriter, r *http.Request)
 		}
 
 		// Broadcast to all channels
-		mr.svc.BroadcastMessage(msgType, msg.Body)
+		err = mr.svc.BroadcastMessage(msgType, msg.Body)
+		if err != nil {
+			// Do not fail, just print the error
+			fmt.Println(err)
+		}
 	}
 }

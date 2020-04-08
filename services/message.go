@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -32,7 +31,7 @@ type (
 		CreateMessage(string) (*Message, error)
 		GetMessages() ([]*Message, error)
 		RegisterChannel(newConn *websocket.Conn)
-		BroadcastMessage(msgType int, msg string)
+		BroadcastMessage(msgType int, msg string) error
 	}
 )
 
@@ -76,18 +75,18 @@ func (svc *MsgSvc) RegisterChannel(newConn *websocket.Conn) {
 }
 
 // BroadcastMessage will send message to all available channels
-func (svc *MsgSvc) BroadcastMessage(msgType int, msg string) {
+func (svc *MsgSvc) BroadcastMessage(msgType int, msg string) error {
 	msgByte, err := json.Marshal(msg)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	for _, conn := range svc.Channels {
 		// Send message to every connection
 		if err := conn.WriteMessage(msgType, msgByte); err != nil {
-			fmt.Println(err)
-			return
+			return err
 		}
 	}
+
+	return nil
 }
