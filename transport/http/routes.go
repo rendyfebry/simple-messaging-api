@@ -103,15 +103,17 @@ func MakeWebSocketHandler(svc services.MsgService) http.Handler {
 			// Read message from browser
 			msgType, msgBody, err := newConn.ReadMessage()
 			if err != nil {
+				// Do not fail, just print the error
 				fmt.Println("Unable to read message")
-				return
+				fmt.Println(err)
 			}
 
 			// Save message to storage
 			msg, err := svc.CreateMessage(string(msgBody))
 			if err != nil {
+				// Do not fail, just print the error
 				fmt.Println("Unable to save message")
-				return
+				fmt.Println(err)
 			}
 
 			// Broadcast to all channels

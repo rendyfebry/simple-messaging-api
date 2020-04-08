@@ -68,5 +68,8 @@ docker build -t msgapi .
 Run in Docker
 
 ```
-docker run --rm msgapi -p 8080:8080
+docker run --rm --name msgapi \
+        -p 8080:8080 \
+        -e "USR_ENV=development" \
+        msgapi
 ```

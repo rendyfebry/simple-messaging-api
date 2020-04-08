@@ -20,9 +20,13 @@ func main() {
 	// Initialize route
 	routes := httptransport.MakeRoutes(svc)
 
+	// Should coming from env or config file
+	host := "0.0.0.0"
+	port := 8080
+
 	// Initialize http serve
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("%s:%v", "0.0.0.0", "8080"),
+		Addr:         fmt.Sprintf("%s:%d", host, port),
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
@@ -30,7 +34,7 @@ func main() {
 	}
 
 	fmt.Println(fmt.Sprintf("Environment: %s", "development"))
-	fmt.Println(fmt.Sprintf("Application URL: http://%s:%v", "localhost", "8080"))
+	fmt.Println(fmt.Sprintf("Application URL: http://%s:%d", host, port))
 
 	// Run server in goroutine
 	go func() {

@@ -30,7 +30,7 @@
         output.innerHTML += `Msg: ${e.data} \n`;
       }
 
-      const socket = new WebSocket("ws://localhost:8080/ws");
+      const socket = new WebSocket("ws://0.0.0.0:8080/ws");
       socket.onopen = handleOpen;
       socket.onclose = handleClose;
       socket.onmessage = handleNewMessage;

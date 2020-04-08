@@ -16,5 +16,8 @@ FROM gcr.io/distroless/base
 # Copy bin file
 COPY --from=build /go/src/github.com/rendyfebry/simple-messaging-api/bin/msgapi /msgapi
 
+# Copy public folder
+COPY public /public
+
 ENTRYPOINT ["/msgapi"]
 EXPOSE 8080
