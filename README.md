@@ -56,3 +56,17 @@ curl -L -X POST 'localhost:8080/messages' \
 ```
 
 PS: The api and webclient is connected, so weather post message from api or web client, the message will appear when you call the GetMessages endpoint.
+
+## Docker
+
+Docker Build
+
+```
+docker build -t msgapi .
+```
+
+Run in Docker
+
+```
+docker run --rm msgapi -p 8080:8080
+```
